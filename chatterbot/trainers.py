@@ -348,3 +348,47 @@ class UbuntuCorpusTrainer(Trainer):
             self.chatbot.storage.create_many(statements_from_file)
 
         print('Training took', time.time() - start_time, 'seconds.')
+
+
+
+class WikiTrainer(Trainer):
+    def train(self, file_path):
+        wiki_tsv = open(file_path, 'r', encoding='utf-8')
+        reader = csv.reader(wiki_tsv, delimiter='\t')
+        statements_from_file = []
+        row_counter = 0
+        for row in reader:
+            row_counter = row_counter + 1
+            utils.print_progress_bar(
+                    'Wiki Trainer',
+                    row_counter, 29259
+                )
+            if len(row) > 0:
+
+                qsearch_text = self.chatbot.storage.tagger.get_text_index_string(row[1])
+
+                qstmt = Statement(
+                    text=row[1],
+                    search_text=qsearch_text,
+                    in_response_to='',
+                    search_in_response_to=''
+                )
+
+                for preprocessor in self.chatbot.preprocessors:
+                    qstmt = preprocessor(qstmt)
+
+                statements_from_file.append(qstmt)
+
+                astmt = Statement(
+                    text=row[5],
+                    search_text=self.chatbot.storage.tagger.get_text_index_string(row[5]),
+                    in_response_to=row[1],
+                    search_in_response_to=qsearch_text
+                )
+
+                for preprocessor in self.chatbot.preprocessors:
+                    astmt = preprocessor(astmt)
+
+                statements_from_file.append(astmt)
+
+        self.chatbot.storage.create_many(statements_from_file)
