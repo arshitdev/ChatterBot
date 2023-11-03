@@ -7,6 +7,7 @@ chatbot = ChatBot('mybot')
 wiki_trainer = WikiTrainer(chatbot)
 
 # train on english corpus data
+# english.tsv and wiki.tsv files are in app folder
 # wiki_trainer.train('D:\\work\\english.tsv')
 
 
